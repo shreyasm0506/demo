@@ -1,1 +1,1076 @@
-<p1> hello </p1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PyForge — Python Mastery Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#070709;--bg2:#0d0d12;--bg3:#12121a;--surface:#16161f;--surface2:#1c1c28;
+  --border:#22222f;--border2:#2a2a3a;--text:#e8e8f0;--muted:#555570;--muted2:#8888a8;
+  --mono:'IBM Plex Mono',monospace;--display:'Bricolage Grotesque',sans-serif;
+  --c-basics:#64ffda;--c-ds:#ff9f43;--c-oop:#a29bfe;--c-algo:#fd79a8;
+  --c-advanced:#74b9ff;--c-project:#ffeaa7;
+  --easy:#00b894;--medium:#e17055;--hard:#d63031;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;overflow-x:hidden;}
+.bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 600px 400px at 10% 20%,rgba(100,255,218,0.04) 0%,transparent 70%),radial-gradient(ellipse 500px 400px at 90% 80%,rgba(162,155,254,0.04) 0%,transparent 70%);}
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);background-size:32px 32px;}
+#app{position:relative;z-index:1;}
+.view{display:none;}
+.view.active{display:flex;flex-direction:column;min-height:100vh;}
+
+/* HOME */
+#v-home{align-items:center;justify-content:center;padding:40px 20px;}
+.home-header{text-align:center;margin-bottom:64px;animation:rise .7s ease both;}
+.brand{font-family:var(--display);font-size:clamp(48px,8vw,96px);font-weight:800;letter-spacing:-3px;line-height:1;background:linear-gradient(135deg,#fff 0%,#666 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.brand-sub{font-size:13px;color:var(--muted2);letter-spacing:4px;text-transform:uppercase;margin-top:12px;}
+.brand-desc{max-width:520px;margin:20px auto 0;font-size:14px;color:var(--muted2);line-height:1.8;font-family:var(--display);font-weight:400;}
+.roadmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;width:100%;max-width:1100px;}
+.topic-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden;text-align:left;}
+.topic-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--tc) 0%,transparent 60%);opacity:0;transition:opacity .3s;}
+.topic-card:hover{transform:translateY(-6px);border-color:var(--tc);box-shadow:0 24px 80px -12px var(--tc-glow);}
+.topic-card:hover::after{opacity:.04;}
+.tc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.tc-icon{font-size:28px;}
+.tc-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid var(--tc);color:var(--tc);}
+.tc-num{font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:6px;}
+.tc-title{font-family:var(--display);font-size:22px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:-.5px;}
+.tc-desc{font-size:12px;color:var(--muted2);line-height:1.7;}
+.tc-topics{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.tc-tag{font-size:10px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--muted2);}
+.tc-arrow{position:absolute;bottom:22px;right:24px;font-size:20px;color:var(--tc);opacity:0;transition:all .2s;transform:translateX(-6px);}
+.topic-card:hover .tc-arrow{opacity:1;transform:translateX(0);}
+.tc-solved{margin-top:14px;font-size:11px;}
+
+/* LIST VIEW */
+#v-list{flex-direction:column;}
+.top-bar{display:flex;align-items:center;gap:16px;padding:16px 32px;border-bottom:1px solid var(--border);background:rgba(13,13,18,.95);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+.back-btn{background:none;border:1px solid var(--border2);color:var(--muted2);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:12px;transition:all .2s;}
+.back-btn:hover{color:var(--text);background:var(--surface);}
+.top-bar-title{font-family:var(--display);font-size:18px;font-weight:700;flex:1;}
+.list-body{padding:32px;max-width:1000px;margin:0 auto;width:100%;}
+
+/* Topic tabs (Problems / FAQ) */
+.topic-view-tabs{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--border);border-radius:12px;overflow:hidden;width:fit-content;}
+.tvt{padding:11px 28px;font-size:12px;cursor:pointer;color:var(--muted);background:none;border:none;font-family:var(--mono);transition:all .2s;position:relative;}
+.tvt.active{color:var(--text);background:var(--surface);}
+.tvt-badge{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:9px;font-weight:700;margin-left:6px;background:var(--surface2);}
+.tvt.active .tvt-badge{background:var(--accent,var(--c-basics));color:#000;}
+
+.list-intro{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:28px;}
+.list-intro-title{font-family:var(--display);font-size:20px;font-weight:700;margin-bottom:8px;}
+.list-intro-text{font-size:13px;color:var(--muted2);line-height:1.8;}
+
+.problem-table{width:100%;}
+.problem-row{display:grid;grid-template-columns:48px 1fr 100px 80px 60px;align-items:center;gap:16px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s;border-radius:8px;margin-bottom:2px;}
+.problem-row:hover{background:var(--surface);}
+.problem-row.solved .p-title::before{content:'✓ ';color:var(--easy);}
+.p-num{font-size:12px;color:var(--muted);text-align:center;}
+.p-title{font-size:14px;color:var(--text);font-weight:500;}
+.p-title small{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-weight:400;}
+.p-diff{font-size:11px;font-weight:700;text-align:center;padding:3px 10px;border-radius:4px;}
+.diff-easy{color:var(--easy);background:rgba(0,184,148,.1);}
+.diff-medium{color:var(--medium);background:rgba(225,112,85,.1);}
+.diff-hard{color:var(--hard);background:rgba(214,48,49,.1);}
+.p-type{font-size:11px;color:var(--muted);text-align:center;}
+.p-status{text-align:center;font-size:14px;}
+.section-hdr{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);padding:20px 16px 10px;display:flex;align-items:center;gap:12px;}
+.section-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
+.project-row{background:linear-gradient(135deg,rgba(255,234,167,.05) 0%,transparent 60%);border:1px solid rgba(255,234,167,.2)!important;border-radius:12px!important;padding:18px 16px!important;margin-top:8px;}
+.project-row .p-title{color:var(--c-project);}
+
+/* FAQ Panel */
+#faq-panel{display:none;}
+#faq-panel.active{display:block;}
+.faq-loading{display:flex;align-items:center;gap:14px;padding:40px 0;color:var(--muted);font-size:13px;}
+.faq-intro{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:24px;}
+.faq-intro-title{font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:6px;}
+.faq-intro-text{font-size:12px;color:var(--muted2);line-height:1.8;}
+.faq-grid{display:flex;flex-direction:column;gap:12px;}
+.faq-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s;}
+.faq-card:hover{border-color:var(--border2);}
+.faq-q-row{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;cursor:pointer;}
+.faq-q-num{font-size:11px;font-weight:700;color:var(--accent,var(--c-basics));background:rgba(100,255,218,.08);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.faq-q-content{flex:1;}
+.faq-q-text{font-size:13px;color:var(--text);font-weight:500;line-height:1.5;margin-bottom:4px;}
+.faq-q-meta{display:flex;align-items:center;gap:8px;}
+.faq-freq{font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface2);color:var(--muted2);}
+.faq-diff-badge{font-size:10px;font-weight:700;}
+.faq-chevron{font-size:12px;color:var(--muted);transition:transform .2s;flex-shrink:0;margin-top:4px;}
+.faq-card.open .faq-chevron{transform:rotate(180deg);}
+.faq-answer{display:none;padding:0 20px 20px 62px;font-size:13px;color:var(--muted2);line-height:1.9;font-family:var(--display);font-weight:400;}
+.faq-card.open .faq-answer{display:block;animation:rise .3s ease both;}
+.faq-answer pre{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12px;color:#c8c8e0;overflow-x:auto;margin:12px 0;line-height:1.8;white-space:pre-wrap;}
+.faq-answer .faq-tip{background:rgba(100,255,218,.04);border:1px solid rgba(100,255,218,.15);border-radius:8px;padding:12px 16px;margin-top:12px;font-size:12px;color:var(--muted2);}
+.faq-answer .faq-tip strong{color:var(--c-basics);}
+.faq-try-btn{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-family:var(--mono);font-size:11px;padding:7px 14px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--muted2);cursor:pointer;transition:all .2s;}
+.faq-try-btn:hover{color:var(--text);border-color:var(--accent,var(--c-basics));background:var(--surface2);}
+
+/* QUICK PRACTICE TAB */
+#practice-panel{display:none;}
+#practice-panel.active{display:block;}
+.qp-header{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:24px;}
+.qp-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:12px;}
+.qp-header-title{font-family:var(--display);font-size:18px;font-weight:700;}
+.qp-header-text{font-size:12px;color:var(--muted2);line-height:1.8;}
+.qp-gen-btn{font-family:var(--mono);font-size:12px;font-weight:700;padding:10px 22px;border-radius:9px;border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;color:#000;}
+.qp-gen-btn:disabled{opacity:.5;cursor:not-allowed;}
+.qp-gen-btn:not(:disabled):hover{filter:brightness(1.1);transform:translateY(-1px);}
+.qp-difficulty-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.qp-diff-btn{font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--muted2);cursor:pointer;transition:all .2s;}
+.qp-diff-btn:hover{color:var(--text);border-color:var(--border2);}
+.qp-diff-btn.selected{color:#000;border-color:transparent;}
+
+/* Question card */
+.qp-question-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden;animation:rise .3s ease both;}
+.qp-q-header{padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.qp-q-title{font-family:var(--display);font-size:18px;font-weight:700;color:#fff;line-height:1.3;}
+.qp-q-badges{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+.qp-q-body{padding:16px 24px;font-size:13px;color:#c8c8e0;line-height:1.9;font-family:var(--display);font-weight:400;white-space:pre-wrap;}
+.qp-q-hint{margin:0 24px 16px;background:rgba(255,209,102,.04);border:1px solid rgba(255,209,102,.15);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--muted2);}
+.qp-q-hint strong{color:#ffd166;}
+
+/* Inline editor */
+.qp-editor-wrap{border-top:1px solid var(--border);}
+.qp-editor-topbar{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:#09090f;border-bottom:1px solid var(--border);}
+.qp-editor-dots{display:flex;gap:5px;}
+.qp-dot{width:10px;height:10px;border-radius:50%;}
+.qp-code-input{width:100%;min-height:200px;background:#06060e;color:#d4d4f0;font-family:var(--mono);font-size:13px;line-height:1.8;padding:16px 20px;border:none;outline:none;resize:vertical;tab-size:4;caret-color:var(--c-basics);}
+.qp-code-input::placeholder{color:#1e1e30;}
+.qp-actions{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg2);border-top:1px solid var(--border);}
+.qp-submit-btn{font-family:var(--mono);font-size:12px;font-weight:700;padding:9px 22px;border-radius:8px;border:none;cursor:pointer;color:#000;display:flex;align-items:center;gap:6px;transition:all .2s;}
+.qp-submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+.qp-reset-btn{font-family:var(--mono);font-size:11px;background:none;border:1px solid var(--border2);color:var(--muted2);padding:8px 14px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.qp-reset-btn:hover{color:var(--text);}
+.qp-eval-msg{font-size:11px;color:var(--muted);margin-left:4px;}
+
+/* Result inline */
+.qp-result{margin:0 0 0;border-top:1px solid var(--border);padding:16px 20px;background:var(--bg2);}
+.qp-result-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.qp-result-verdict{font-weight:700;font-size:13px;}
+.qp-score-wrap{display:flex;align-items:center;gap:10px;flex:1;}
+.qp-score-bar{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.qp-score-fill{height:100%;border-radius:2px;transition:width 1s ease;}
+.qp-score-num{font-size:13px;font-weight:700;font-family:var(--display);}
+.qp-feedback{font-size:12px;color:var(--muted2);line-height:1.8;margin-bottom:10px;}
+.qp-solution{background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:8px;}
+.qp-solution-label{padding:8px 14px;font-size:10px;color:var(--c-project);font-weight:700;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.qp-solution-code{padding:12px 14px;font-size:12px;color:#c8c8e0;font-family:var(--mono);line-height:1.8;white-space:pre-wrap;overflow-x:auto;}
+
+.qp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);text-align:center;gap:12px;}
+.qp-empty-icon{font-size:48px;opacity:.3;}
+.qp-empty-text{font-size:13px;line-height:1.7;}
+
+/* SOLVE VIEW */
+#v-solve{flex-direction:column;height:100vh;overflow:hidden;}
+.solve-nav{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
+.solve-nav-title{font-size:14px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.diff-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.solve-body{display:grid;grid-template-columns:480px 1fr;flex:1;overflow:hidden;}
+.prob-panel{border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
+.prob-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.prob-tab{padding:12px 20px;font-size:12px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--mono);}
+.prob-tab.active{color:var(--text);border-bottom-color:var(--accent,var(--c-basics));}
+.prob-content{padding:24px;flex:1;}
+.prob-title{font-family:var(--display);font-size:22px;font-weight:700;margin-bottom:6px;line-height:1.2;}
+.prob-meta{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.prob-tag{font-size:10px;padding:3px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--muted2);}
+.prob-desc{font-size:13px;line-height:1.9;color:#c8c8e0;font-family:var(--display);font-weight:400;}
+.prob-desc h4{font-family:var(--mono);font-size:12px;color:var(--text);margin:18px 0 8px;letter-spacing:.5px;}
+.example-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:8px 0;font-size:12px;line-height:1.7;color:var(--muted2);font-family:var(--mono);}
+.example-box strong{color:var(--text);}
+.constraints-box{background:rgba(255,234,167,.04);border:1px solid rgba(255,234,167,.1);border-radius:8px;padding:14px 16px;margin-top:14px;}
+.constraints-box h4{color:var(--c-project);}
+.constraints-box ul{padding-left:20px;margin-top:6px;}
+.constraints-box li{font-size:12px;color:var(--muted2);line-height:1.8;}
+.hint-list{display:flex;flex-direction:column;gap:10px;}
+.hint-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.hint-toggle{width:100%;padding:12px 16px;text-align:left;background:none;border:none;color:var(--muted2);font-family:var(--mono);font-size:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.hint-toggle:hover{color:var(--text);}
+.hint-body{padding:12px 16px;font-size:12px;color:var(--muted2);line-height:1.7;border-top:1px solid var(--border);display:none;}
+.hint-body.show{display:block;}
+.solution-reveal{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.solution-reveal+.solution-reveal{margin-top:12px;}
+.solution-reveal-header{padding:12px 16px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);}
+.solution-code-block{padding:16px;font-size:12px;color:#c8c8e0;font-family:var(--mono);line-height:1.8;white-space:pre-wrap;overflow-x:auto;}
+.editor-panel{display:flex;flex-direction:column;overflow:hidden;}
+.editor-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#09090f;border-bottom:1px solid var(--border);flex-shrink:0;}
+.editor-dots{display:flex;gap:6px;}
+.edot{width:11px;height:11px;border-radius:50%;}
+.code-area{flex:1;overflow:hidden;position:relative;}
+#code-input{width:100%;height:100%;background:#06060e;color:#d4d4f0;font-family:var(--mono);font-size:13px;line-height:1.8;padding:20px 24px;border:none;outline:none;resize:none;tab-size:4;caret-color:var(--c-basics);}
+#code-input::placeholder{color:#1e1e30;}
+.editor-actions{padding:14px 20px;background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.run-btn{font-family:var(--mono);font-size:13px;font-weight:700;padding:11px 28px;border-radius:10px;border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;background:var(--accent,var(--c-basics));color:#000;}
+.run-btn:disabled{opacity:.5;cursor:not-allowed;}
+.run-btn:not(:disabled):hover{filter:brightness(1.1);transform:translateY(-1px);}
+.reset-btn,.next-prob-btn{font-family:var(--mono);font-size:12px;background:none;border:1px solid var(--border2);color:var(--muted2);padding:10px 16px;border-radius:8px;cursor:pointer;transition:all .2s;}
+.reset-btn:hover,.next-prob-btn:hover{color:var(--text);border-color:#3a3a55;}
+.next-prob-btn{margin-left:auto;}
+.result-panel{border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0;max-height:260px;overflow-y:auto;transition:max-height .3s ease;}
+.result-panel.collapsed{max-height:0;overflow:hidden;}
+.result-topbar{padding:10px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);font-size:12px;}
+.result-verdict-label{font-weight:700;}
+.result-score{margin-left:auto;font-size:13px;font-weight:700;font-family:var(--display);}
+.score-bar-outer{height:3px;background:var(--border);flex:1;border-radius:2px;overflow:hidden;}
+.score-bar-inner{height:100%;border-radius:2px;transition:width 1s ease;}
+.result-body{padding:16px 20px;}
+.result-feedback{font-size:12px;color:var(--muted2);line-height:1.8;margin-bottom:12px;}
+.ai-solution-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:10px;}
+.ai-sol-header{padding:10px 16px;font-size:10px;color:var(--c-project);font-weight:700;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.ai-sol-code{padding:14px 16px;font-size:12px;color:#c8c8e0;font-family:var(--mono);line-height:1.8;white-space:pre-wrap;overflow-x:auto;}
+
+/* Loading */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(7,7,9,.85);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:16px;backdrop-filter:blur(4px);}
+.loading-overlay.show{display:flex;}
+.ld-spinner{width:44px;height:44px;border:2px solid var(--border2);border-top-color:var(--c-basics);border-radius:50%;animation:spin .7s linear infinite;}
+.ld-text{font-size:12px;color:var(--muted2);letter-spacing:1px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Inline spinner */
+.inline-spinner{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--c-basics);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+@media(max-width:900px){
+  .solve-body{grid-template-columns:1fr;grid-template-rows:auto 1fr;}
+  .prob-panel{max-height:40vh;}
+  .problem-row{grid-template-columns:36px 1fr 80px;}
+  .p-type,.p-status{display:none;}
+}
+@media(max-width:600px){
+  .list-body{padding:16px;}
+  .top-bar{padding:12px 16px;}
+  .roadmap{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="bg-grid"></div>
+<div id="app">
+
+<div class="loading-overlay" id="loader">
+  <div class="ld-spinner"></div>
+  <div class="ld-text" id="loader-text">Loading…</div>
+</div>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="view active" id="v-home">
+  <div class="home-header">
+    <div class="brand">PyForge</div>
+    <div class="brand-sub">Python Mastery Platform</div>
+    <div class="brand-desc">Structured curriculum · LeetCode-style problems · Topic FAQs · Portfolio projects</div>
+  </div>
+  <div class="roadmap" id="roadmap-grid"></div>
+</div>
+
+<!-- ══════════ LIST ══════════ -->
+<div class="view" id="v-list">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showHome()">← Back</button>
+    <span class="top-bar-title" id="list-title"></span>
+    <span style="font-size:11px;color:var(--muted)" id="list-meta"></span>
+  </div>
+  <div class="list-body">
+    <!-- Tab switcher -->
+    <div class="topic-view-tabs">
+      <button class="tvt active" id="tab-problems" onclick="switchTopicTab('problems')">
+        Problems <span class="tvt-badge" id="prob-count-badge">0</span>
+      </button>
+      <button class="tvt" id="tab-faq" onclick="switchTopicTab('faq')">
+        FAQ — Most Asked <span class="tvt-badge" id="faq-count-badge">10</span>
+      </button>
+      <button class="tvt" id="tab-practice" onclick="switchTopicTab('practice')">
+        🎯 Quick Practice <span class="tvt-badge">∞</span>
+      </button>
+    </div>
+
+    <!-- Problems panel -->
+    <div id="problems-panel">
+      <div class="list-intro">
+        <div class="list-intro-title" id="list-intro-title"></div>
+        <div class="list-intro-text" id="list-intro-text"></div>
+      </div>
+      <div class="problem-table" id="problem-table"></div>
+    </div>
+
+    <!-- Quick Practice panel -->
+    <div id="practice-panel">
+      <div class="qp-header">
+        <div class="qp-header-top">
+          <div class="qp-header-title">🎯 Quick Practice</div>
+          <button class="qp-gen-btn" id="qp-gen-btn" onclick="generateQPQuestion()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Generate New Question
+          </button>
+        </div>
+        <div class="qp-header-text">AI generates a unique question on this topic every time. Pick a difficulty and practice until the concept clicks.</div>
+        <div class="qp-difficulty-row">
+          <span style="font-size:11px;color:var(--muted);align-self:center;margin-right:4px">Difficulty:</span>
+          <button class="qp-diff-btn selected" id="qpd-easy" onclick="selectQPDiff('Easy',this)">Easy</button>
+          <button class="qp-diff-btn" id="qpd-medium" onclick="selectQPDiff('Medium',this)">Medium</button>
+          <button class="qp-diff-btn" id="qpd-hard" onclick="selectQPDiff('Hard',this)">Hard</button>
+          <button class="qp-diff-btn" id="qpd-random" onclick="selectQPDiff('Random',this)">🎲 Random</button>
+        </div>
+      </div>
+      <div id="qp-question-area">
+        <div class="qp-empty">
+          <div class="qp-empty-icon">⚡</div>
+          <div class="qp-empty-text">Hit <strong style="color:var(--text)">Generate New Question</strong> to get<br>a fresh AI-generated practice problem on this topic.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ panel -->
+    <div id="faq-panel">
+      <div class="faq-intro">
+        <div class="faq-intro-title" id="faq-intro-title">Most Asked Questions</div>
+        <div class="faq-intro-text" id="faq-intro-text">These are the most frequently asked Python interview & practice questions on this topic — collected from LeetCode discussions, Stack Overflow, coding interviews, and popular courses.</div>
+      </div>
+      <div class="faq-grid" id="faq-grid">
+        <div class="faq-loading"><div class="inline-spinner"></div> Generating FAQ for this topic…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SOLVE ══════════ -->
+<div class="view" id="v-solve">
+  <div class="solve-nav">
+    <button class="back-btn" onclick="showList_back()">← Problems</button>
+    <span class="solve-nav-title" id="solve-title"></span>
+    <span class="diff-pill" id="solve-diff"></span>
+    <button class="next-prob-btn" onclick="nextProblem()">Next →</button>
+  </div>
+  <div class="solve-body">
+    <div class="prob-panel">
+      <div class="prob-tabs">
+        <button class="prob-tab active" onclick="switchTab('desc',this)">Description</button>
+        <button class="prob-tab" onclick="switchTab('hints',this)">Hints</button>
+        <button class="prob-tab" onclick="switchTab('solution',this)">Solution</button>
+      </div>
+      <div class="prob-content" id="prob-content"></div>
+    </div>
+    <div class="editor-panel">
+      <div class="editor-topbar">
+        <div class="editor-dots">
+          <div class="edot" style="background:#ff5f57"></div>
+          <div class="edot" style="background:#febc2e"></div>
+          <div class="edot" style="background:#28c840"></div>
+        </div>
+        <span style="font-size:11px;color:var(--muted)">solution.py</span>
+        <span style="font-size:10px;color:var(--c-basics);letter-spacing:1px">Python 3</span>
+      </div>
+      <div class="code-area">
+        <textarea id="code-input" placeholder="# Start coding here...&#10;# Tab key inserts 4 spaces"></textarea>
+      </div>
+      <div class="editor-actions">
+        <button class="run-btn" id="run-btn" onclick="submitSolution()">
+          <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>
+          Submit
+        </button>
+        <button class="reset-btn" onclick="resetCode()">Reset</button>
+        <span id="eval-msg" style="font-size:11px;color:var(--muted)"></span>
+      </div>
+      <div class="result-panel collapsed" id="result-panel">
+        <div class="result-topbar" id="result-topbar"></div>
+        <div class="result-body" id="result-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ═══ CURRICULUM ═══ */
+const TOPICS = [
+  {
+    id:'basics',icon:'🐍',color:'var(--c-basics)',glow:'rgba(100,255,218,0.15)',
+    num:'01',badge:'FOUNDATION',title:'Python Basics',
+    desc:'Variables, control flow, strings, lists, dicts, functions, and recursion.',
+    tags:['Variables','Loops','Functions','Strings','Lists','Dicts','Recursion'],
+    intro:'Master the core building blocks. These problems build muscle memory for Python syntax, data types, and logic — the foundation everything else rests on.',
+    faqContext:'Python basics: variables, data types, loops, conditionals, functions, strings, lists, tuples, dictionaries, sets, comprehensions, recursion, scope, lambda, map/filter',
+    problems:[
+      {id:'b1',title:'Two Sum',sub:'Return indices of two numbers summing to target',diff:'Easy',type:'Arrays',tags:['lists','loops','dict'],starter:'def two_sum(nums, target):\n    # Your solution here\n    pass\n\nprint(two_sum([2,7,11,15], 9))  # [0,1]'},
+      {id:'b2',title:'FizzBuzz Pro',sub:'Configurable divisors and custom words',diff:'Easy',type:'Loops',tags:['loops','conditionals'],starter:'def fizzbuzz(n, rules=None):\n    # rules = {3:"Fizz", 5:"Buzz"} by default\n    pass\n\nfor x in fizzbuzz(20): print(x)'},
+      {id:'b3',title:'String Compression',sub:'"aaabbc" → "a3b2c1"',diff:'Easy',type:'Strings',tags:['strings','loops'],starter:'def compress(s):\n    pass\n\nprint(compress("aaabbc"))  # "a3b2c1"'},
+      {id:'b4',title:'Valid Palindrome',sub:'Ignore non-alphanumeric, case-insensitive',diff:'Easy',type:'Strings',tags:['strings','two-pointer'],starter:'def is_palindrome(s):\n    pass\n\nprint(is_palindrome("A man, a plan, a canal: Panama"))  # True'},
+      {id:'b5',title:'Rotate Matrix',sub:'Rotate NxN matrix 90° in-place',diff:'Medium',type:'Lists',tags:['2D-lists','matrix'],starter:'def rotate(matrix):\n    pass\n\nm = [[1,2,3],[4,5,6],[7,8,9]]\nrotate(m)\nprint(m)'},
+      {id:'b6',title:'Group Anagrams',sub:'Group list of strings into anagram clusters',diff:'Medium',type:'Dicts',tags:['dicts','strings'],starter:'def group_anagrams(strs):\n    pass\n\nprint(group_anagrams(["eat","tea","tan","ate","nat","bat"]))'},
+      {id:'b7',title:'Flatten Nested List',sub:'Flatten arbitrarily nested list recursively',diff:'Medium',type:'Recursion',tags:['recursion','lists'],starter:'def flatten(lst):\n    pass\n\nprint(flatten([1,[2,[3,4]],[5,6]]))  # [1,2,3,4,5,6]'},
+      {id:'b8',title:'Caesar Cipher',sub:'Encrypt/decrypt with any shift, handle edge cases',diff:'Medium',type:'Strings',tags:['strings','modulo'],starter:'def caesar(text, shift, decrypt=False):\n    pass\n\nprint(caesar("Hello World", 3))  # "Khoor Zruog"'},
+    ]
+  },
+  {
+    id:'ds',icon:'🏗️',color:'var(--c-ds)',glow:'rgba(255,159,67,0.15)',
+    num:'02',badge:'DATA STRUCTURES',title:'Data Structures',
+    desc:'Build and use stacks, queues, linked lists, trees, heaps, and hash maps from scratch.',
+    tags:['Stack','Queue','LinkedList','Binary Tree','Heap','HashMap','Trie'],
+    intro:'Data structures separate problem-solvers from programmers. Implement them from scratch to truly understand how they work.',
+    faqContext:'Python data structures: stack, queue, deque, linked list, binary tree, BST, heap/heapq, hash map, trie, graph, adjacency list, BFS, DFS',
+    problems:[
+      {id:'ds1',title:'Min Stack',sub:'Stack with O(1) minimum retrieval',diff:'Easy',type:'Stack',tags:['stack','class'],starter:'class MinStack:\n    def __init__(self): pass\n    def push(self, val): pass\n    def pop(self): pass\n    def top(self): pass\n    def get_min(self): pass'},
+      {id:'ds2',title:'LRU Cache',sub:'Least Recently Used cache with O(1) get/put',diff:'Hard',type:'HashMap+DLL',tags:['dict','OOP'],starter:'class LRUCache:\n    def __init__(self, capacity): pass\n    def get(self, key): pass\n    def put(self, key, value): pass'},
+      {id:'ds3',title:'Binary Search Tree',sub:'Insert, search, delete, inorder traversal',diff:'Medium',type:'Tree',tags:['BST','recursion'],starter:'class BST:\n    class Node:\n        def __init__(self, val):\n            self.val=val; self.left=self.right=None\n    def insert(self, val): pass\n    def search(self, val): pass\n    def inorder(self): pass'},
+      {id:'ds4',title:'Graph BFS & DFS',sub:'Both traversals on adjacency list',diff:'Medium',type:'Graph',tags:['graph','BFS','DFS'],starter:'def bfs(graph, start): pass\ndef dfs(graph, start): pass\n\ngraph={0:[1,2],1:[3],2:[4],3:[],4:[]}\nprint(bfs(graph,0))\nprint(dfs(graph,0))'},
+      {id:'ds5',title:'Valid Parentheses',sub:'Check bracket string validity using stack',diff:'Easy',type:'Stack',tags:['stack','strings'],starter:'def is_valid(s):\n    pass\n\nprint(is_valid("()[]{}"))  # True\nprint(is_valid("([)]"))    # False'},
+      {id:'ds6',title:'Max Heap',sub:'Build from scratch: heapify, insert, extract-max',diff:'Hard',type:'Heap',tags:['heap','lists'],starter:'class MaxHeap:\n    def __init__(self): self.heap=[]\n    def insert(self, val): pass\n    def extract_max(self): pass\n    def heapify_up(self, i): pass\n    def heapify_down(self, i): pass'},
+      {id:'ds7',title:'Trie (Prefix Tree)',sub:'Insert, search, startsWith operations',diff:'Medium',type:'Trie',tags:['trie','OOP'],starter:'class Trie:\n    def __init__(self): pass\n    def insert(self, word): pass\n    def search(self, word): pass\n    def starts_with(self, prefix): pass'},
+    ]
+  },
+  {
+    id:'oop',icon:'🧬',color:'var(--c-oop)',glow:'rgba(162,155,254,0.15)',
+    num:'03',badge:'OOP & DESIGN',title:'OOP & Design Patterns',
+    desc:'Classes, inheritance, decorators, generators, context managers, and design patterns.',
+    tags:['Classes','Inheritance','Decorators','Generators','Context Managers','Patterns'],
+    intro:'Python\'s OOP model is powerful and elegant. Learn to write clean, reusable, Pythonic code that scales — the kind that impresses in code reviews.',
+    faqContext:'Python OOP: classes, __init__, inheritance, polymorphism, dunder methods, @property, @staticmethod, @classmethod, decorators, closures, generators, yield, context managers, design patterns (singleton, factory, observer)',
+    problems:[
+      {id:'o1',title:'BankAccount Class',sub:'@property, setter, validation, __repr__, transactions',diff:'Easy',type:'OOP',tags:['class','property'],starter:'class BankAccount:\n    def __init__(self, owner, balance=0): pass\n    @property\n    def balance(self): pass\n    @balance.setter\n    def balance(self, amount): pass\n    def deposit(self, amount): pass\n    def withdraw(self, amount): pass\n    def __repr__(self): pass'},
+      {id:'o2',title:'Singleton Pattern',sub:'Ensure single instance; thread-safe implementation',diff:'Medium',type:'Design Pattern',tags:['singleton','metaclass'],starter:'class Singleton:\n    pass\n\na = Singleton()\nb = Singleton()\nprint(a is b)  # True'},
+      {id:'o3',title:'Decorator Pipeline',sub:'Composable: @timer, @retry, @cache, @log',diff:'Medium',type:'Decorators',tags:['decorators','closures'],starter:'import functools, time\n\ndef timer(func): pass\ndef retry(times=3): pass\ndef cache(func): pass\n\n@timer\n@retry(times=3)\ndef fetch_data(url): pass'},
+      {id:'o4',title:'Infinite Generator',sub:'Fibonacci, primes, custom sequences',diff:'Easy',type:'Generators',tags:['generators','yield'],starter:'def fibonacci():\n    pass  # infinite\n\ndef primes():\n    pass  # infinite\n\nimport itertools\nprint(list(itertools.islice(fibonacci(), 10)))'},
+      {id:'o5',title:'Context Manager',sub:'Resource manager using __enter__ / __exit__',diff:'Medium',type:'Context Managers',tags:['context-manager'],starter:'class ManagedDB:\n    def __init__(self, name): self.name=name\n    def __enter__(self): pass\n    def __exit__(self, exc_type, exc_val, exc_tb): pass\n    def query(self, sql): pass'},
+      {id:'o6',title:'Observer Pattern',sub:'Event system: subscribe, publish, unsubscribe',diff:'Medium',type:'Design Pattern',tags:['observer','OOP'],starter:'class EventEmitter:\n    def __init__(self): pass\n    def on(self, event, callback): pass\n    def emit(self, event, *args): pass\n    def off(self, event, callback): pass'},
+      {id:'o7',title:'Metaclass ORM',sub:'Simple ORM using metaclasses for model definitions',diff:'Hard',type:'Metaclasses',tags:['metaclass','advanced'],starter:'class ModelMeta(type): pass\nclass Model(metaclass=ModelMeta): pass\n\nclass User(Model):\n    name = str\n    age = int'},
+    ]
+  },
+  {
+    id:'algo',icon:'⚡',color:'var(--c-algo)',glow:'rgba(253,121,168,0.15)',
+    num:'04',badge:'ALGORITHMS',title:'Algorithms',
+    desc:'Sorting, binary search, dynamic programming, greedy, divide & conquer, backtracking.',
+    tags:['Sorting','Binary Search','DP','Greedy','Divide & Conquer','Backtracking'],
+    intro:'Algorithms are what you face in technical interviews. Master these patterns and you can solve any new problem systematically.',
+    faqContext:'Python algorithms: binary search, merge sort, quick sort, dynamic programming, memoization, greedy, two pointers, sliding window, backtracking, recursion, divide and conquer, graph algorithms',
+    problems:[
+      {id:'a1',title:'Binary Search Variants',sub:'Classic + first/last occurrence + rotated array',diff:'Easy',type:'Binary Search',tags:['binary-search'],starter:'def binary_search(arr, target): pass\ndef first_occurrence(arr, target): pass\ndef search_rotated(arr, target): pass\n\nprint(search_rotated([4,5,6,7,0,1,2], 0))  # 4'},
+      {id:'a2',title:'Merge Sort + Count Inversions',sub:'Implement merge sort; count inversions as bonus',diff:'Medium',type:'Sorting',tags:['sorting','divide-conquer'],starter:'def merge_sort(arr): pass\ndef count_inversions(arr):\n    # Return (sorted_arr, inversion_count)\n    pass\n\nprint(merge_sort([38,27,43,3,9,82,10]))'},
+      {id:'a3',title:'Longest Common Subsequence',sub:'LCS with path reconstruction',diff:'Medium',type:'DP',tags:['DP','strings'],starter:'def lcs(s1, s2):\n    # Return length AND the actual subsequence\n    pass\n\nprint(lcs("ABCBDAB","BDCABA"))  # 4, "BCBA"'},
+      {id:'a4',title:'Coin Change',sub:'Min coins + count ways + list combinations',diff:'Medium',type:'DP',tags:['DP','greedy'],starter:'def min_coins(coins, amount): pass\ndef count_ways(coins, amount): pass\n\nprint(min_coins([1,5,6,9], 11))  # 2'},
+      {id:'a5',title:'Sliding Window Maximum',sub:'Max in every k-window in O(n)',diff:'Hard',type:'Sliding Window',tags:['deque','arrays'],starter:'from collections import deque\n\ndef max_sliding_window(nums, k):\n    pass\n\nprint(max_sliding_window([1,3,-1,-3,5,3,6,7],3))\n# [3,3,5,5,6,7]'},
+      {id:'a6',title:"Dijkstra's Shortest Path",sub:'Weighted graph with priority queue',diff:'Hard',type:'Graph',tags:['heap','graph'],starter:'import heapq\n\ndef dijkstra(graph, start):\n    # graph={node:[(cost,neighbor),...]}\n    pass\n\ngraph={0:[(4,1),(1,2)],1:[(3,3)],2:[(2,1),(5,3)],3:[]}\nprint(dijkstra(graph,0))'},
+      {id:'a7',title:'N-Queens',sub:'Backtracking: place N queens on NxN board',diff:'Hard',type:'Backtracking',tags:['backtracking','recursion'],starter:'def solve_n_queens(n):\n    pass\n\nsols = solve_n_queens(4)\nprint(len(sols))  # 2'},
+    ]
+  },
+  {
+    id:'advanced',icon:'🚀',color:'var(--c-advanced)',glow:'rgba(116,185,255,0.15)',
+    num:'05',badge:'ADVANCED PYTHON',title:'Advanced Python',
+    desc:'Asyncio, threading, file I/O, REST APIs, unit testing, and performance.',
+    tags:['Asyncio','Threading','File I/O','REST APIs','Unit Testing','Profiling'],
+    intro:'This section separates intermediate developers from professionals. Learn the Python features powering real production systems.',
+    faqContext:'Advanced Python: asyncio, async/await, aiohttp, threading, multiprocessing, GIL, locks, queues, file I/O, pathlib, csv, json, requests, REST APIs, unit testing, pytest, unittest, mock, profiling, memory optimization',
+    problems:[
+      {id:'adv1',title:'Async URL Fetcher',sub:'Fetch 10 URLs concurrently with asyncio',diff:'Medium',type:'Asyncio',tags:['asyncio','async-await'],starter:'import asyncio\n\nasync def fetch(session, url): pass\nasync def fetch_all(urls): pass\n\nurls=["https://httpbin.org/get"]*5\nasyncio.run(fetch_all(urls))'},
+      {id:'adv2',title:'Thread-Safe Counter',sub:'Shared counter with Lock; producer-consumer queue',diff:'Medium',type:'Threading',tags:['threading','locks'],starter:'import threading\n\nclass ThreadSafeCounter:\n    def __init__(self): pass\n    def increment(self): pass\n    def value(self): pass'},
+      {id:'adv3',title:'CSV Data Pipeline',sub:'Read, clean, transform, aggregate, write',diff:'Easy',type:'File I/O',tags:['csv','generators'],starter:'import csv\n\ndef read_csv(filepath): pass\ndef clean(rows): pass\ndef aggregate_by(rows, key): pass\ndef write_csv(rows, filepath): pass'},
+      {id:'adv4',title:'REST API Client',sub:'Reusable client with auth, retry, rate limiting',diff:'Medium',type:'APIs',tags:['requests','OOP'],starter:'import requests\n\nclass APIClient:\n    def __init__(self, base_url, api_key=None): pass\n    def get(self, endpoint, params=None): pass\n    def post(self, endpoint, data=None): pass\n    def _retry(self, func, times=3): pass'},
+      {id:'adv5',title:'Unit Test Suite',sub:'Tests for BankAccount using unittest + mocks',diff:'Medium',type:'Testing',tags:['unittest','mock'],starter:'import unittest\nfrom unittest.mock import MagicMock, patch\n\nclass TestBankAccount(unittest.TestCase):\n    def setUp(self): pass\n    def test_deposit(self): pass\n    def test_withdraw_insufficient(self): pass\n    def test_notification_sent(self): pass'},
+      {id:'adv6',title:'Memory-Efficient File Reader',sub:'Process huge files using generators',diff:'Hard',type:'Performance',tags:['generators','memory'],starter:'def read_large_file(filepath):\n    # Generator — no full load\n    pass\n\ndef word_frequency(filepath):\n    pass'},
+    ]
+  },
+  {
+    id:'project',icon:'🏆',color:'var(--c-project)',glow:'rgba(255,234,167,0.2)',
+    num:'06',badge:'PORTFOLIO PROJECTS',title:'Portfolio Projects',
+    desc:'End-to-end production-quality projects — each a standout portfolio piece.',
+    tags:['CLI Tools','APIs','Data Analysis','Automation','Web Scraping','ML Pipeline'],
+    intro:'Each project here is a complete, production-quality application you can showcase to employers. They combine every skill from all previous chapters.',
+    faqContext:'Python portfolio projects: CLI tools, web scraping, REST API, data analysis, automation, machine learning pipeline, GitHub API, SQLite, Flask, pandas, matplotlib',
+    problems:[
+      {id:'p1',title:'GitHub Activity Analyzer CLI',sub:'Fetch GitHub stats, repos, languages — beautiful terminal output',diff:'Medium',type:'Project',tags:['requests','argparse','API'],starter:'#!/usr/bin/env python3\nimport requests, argparse\nfrom datetime import datetime\n\nGITHUB_API = "https://api.github.com"\n\nclass GitHubAnalyzer:\n    def __init__(self, username, token=None): pass\n    def get_profile(self): pass\n    def get_repos(self): pass\n    def language_breakdown(self): pass\n    def generate_report(self): pass\n\nif __name__ == "__main__":\n    parser = argparse.ArgumentParser()\n    parser.add_argument("username")\n    args = parser.parse_args()\n    GitHubAnalyzer(args.username).generate_report()'},
+      {id:'p2',title:'Personal Finance Tracker',sub:'CSV-based expenses with budgets and visual reports',diff:'Medium',type:'Project',tags:['csv','matplotlib','OOP'],starter:'import csv, json\nfrom datetime import datetime\nfrom pathlib import Path\n\nclass Transaction:\n    def __init__(self, amount, category, description, date=None): pass\n\nclass FinanceTracker:\n    def __init__(self, data_file="finances.csv"): pass\n    def add_transaction(self, amount, category, desc): pass\n    def get_summary(self, month=None): pass\n    def set_budget(self, category, limit): pass\n    def plot_spending(self): pass'},
+      {id:'p3',title:'Web Scraper + REST API',sub:'Scrape Hacker News → SQLite → Flask API',diff:'Hard',type:'Project',tags:['BeautifulSoup','sqlite3','Flask'],starter:'import sqlite3, requests\nfrom bs4 import BeautifulSoup\n\nclass Database:\n    def __init__(self, db_path="hn.db"): pass\n    def create_tables(self): pass\n    def insert_story(self, story): pass\n    def get_stories(self, limit=10): pass\n\nclass HNScraper:\n    BASE_URL = "https://news.ycombinator.com"\n    def scrape_page(self, page=1): pass\n\n# Flask API: GET /stories, GET /stats'},
+      {id:'p4',title:'Task Automation Bot',sub:'File organizer + email digest + full logging',diff:'Hard',type:'Project',tags:['pathlib','schedule','smtplib'],starter:'import os, shutil, logging, schedule, time\nfrom pathlib import Path\n\nlogging.basicConfig(level=logging.INFO,\n    format="%(asctime)s [%(levelname)s] %(message)s")\n\nclass FileOrganizer:\n    CATEGORIES={"Images":[".jpg",".png"],"Documents":[".pdf",".docx"],"Code":[".py",".js"]}\n    def __init__(self, watch_dir): pass\n    def organize(self): pass\n\nclass EmailDigest:\n    def __init__(self, smtp_host, email, password): pass\n    def send_digest(self, log): pass'},
+      {id:'p5',title:'ML Sentiment Analyzer',sub:'Train on tweets, evaluate, save, expose API',diff:'Hard',type:'Project',tags:['sklearn','pandas','Flask'],starter:'import numpy as np, pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import classification_report\nimport pickle\n\nclass SentimentPipeline:\n    def __init__(self):\n        self.vectorizer = TfidfVectorizer(max_features=10000, ngram_range=(1,2))\n        self.model = LogisticRegression(max_iter=1000)\n    def preprocess(self, text): pass\n    def train(self, X, y): pass\n    def evaluate(self, X_test, y_test): pass\n    def predict(self, text): pass\n    def save(self, path): pass'},
+    ]
+  }
+];
+
+/* ═══ STATE ═══ */
+let currentTopic=null, currentProblemIdx=0, currentProblem=null, currentTab='desc';
+let problemData={}, faqData={};
+let solved=new Set(JSON.parse(localStorage.getItem('pyforge_solved')||'[]'));
+let currentTopicTab='problems';
+
+/* ═══ INIT ═══ */
+function init(){
+  const grid=document.getElementById('roadmap-grid');
+  grid.innerHTML='';
+  TOPICS.forEach((t,i)=>{
+    const sc=t.problems.filter(p=>solved.has(p.id)).length;
+    const card=document.createElement('div');
+    card.className='topic-card';
+    card.style.setProperty('--tc',t.color);
+    card.style.setProperty('--tc-glow',t.glow);
+    card.style.animation=`rise .6s ${i*.08}s ease both`;
+    card.innerHTML=`
+      <div class="tc-top"><span class="tc-icon">${t.icon}</span><span class="tc-badge">${t.badge}</span></div>
+      <div class="tc-num">CHAPTER ${t.num}</div>
+      <div class="tc-title">${t.title}</div>
+      <div class="tc-desc">${t.desc}</div>
+      <div class="tc-topics">${t.tags.map(tg=>`<span class="tc-tag">${tg}</span>`).join('')}</div>
+      <div class="tc-solved" style="color:${t.color}">${sc}/${t.problems.length} solved</div>
+      <div class="tc-arrow">→</div>`;
+    card.onclick=()=>showList(t);
+    grid.appendChild(card);
+  });
+}
+
+/* ═══ NAVIGATION ═══ */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showHome(){ showView('v-home'); init(); }
+
+function showList(topic){
+  currentTopic=topic;
+  currentTopicTab='problems';
+  document.getElementById('list-title').textContent=topic.title;
+  document.getElementById('list-intro-title').textContent=topic.title;
+  document.getElementById('list-intro-text').textContent=topic.intro;
+  document.getElementById('list-meta').textContent=`${topic.problems.length} problems`;
+  document.getElementById('prob-count-badge').textContent=topic.problems.length;
+
+  // Set accent color on tabs
+  document.querySelectorAll('.tvt').forEach(t=>t.style.setProperty('--accent',topic.color));
+
+  // Render problems table
+  const table=document.getElementById('problem-table');
+  table.innerHTML='';
+  const hdr=document.createElement('div');
+  hdr.className='section-hdr';
+  hdr.style.color=topic.color;
+  hdr.innerHTML=`${topic.icon} ${topic.badge}`;
+  table.appendChild(hdr);
+  topic.problems.forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.className='problem-row'+(p.type==='Project'?' project-row':'')+(solved.has(p.id)?' solved':'');
+    row.innerHTML=`
+      <div class="p-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="p-title">${esc(p.title)}<small>${esc(p.sub)}</small></div>
+      <div class="p-diff"><span class="p-diff diff-${p.diff.toLowerCase()}">${p.diff}</span></div>
+      <div class="p-type">${p.type}</div>
+      <div class="p-status">${solved.has(p.id)?'✓':''}</div>`;
+    row.onclick=()=>openProblem(i);
+    table.appendChild(row);
+  });
+
+  // Switch to problems tab
+  switchTopicTab('problems', true);
+
+  // Reset Quick Practice area
+  document.getElementById('qp-question-area').innerHTML=`<div class="qp-empty"><div class="qp-empty-icon">⚡</div><div class="qp-empty-text">Hit <strong style="color:var(--text)">Generate New Question</strong> to get<br>a fresh AI-generated practice problem on this topic.</div></div>`;
+  document.querySelectorAll('.qp-diff-btn').forEach(b=>{b.classList.remove('selected');b.style.background='';b.style.borderColor='';b.style.color='';});
+  const easyBtn=document.getElementById('qpd-easy');
+  if(easyBtn){easyBtn.classList.add('selected');easyBtn.style.background=topic.color;easyBtn.style.borderColor=topic.color;easyBtn.style.color='#000';}
+  qpDifficulty='Easy';
+
+  // Pre-load FAQ in background
+  if(!faqData[topic.id]) loadFAQ(topic);
+
+  showView('v-list');
+}
+
+function showList_back(){ showList(currentTopic); }
+
+/* ═══ TOPIC TABS (Problems / FAQ / Quick Practice) ═══ */
+function switchTopicTab(tab, skipLoad){
+  currentTopicTab=tab;
+  document.getElementById('tab-problems').classList.toggle('active', tab==='problems');
+  document.getElementById('tab-faq').classList.toggle('active', tab==='faq');
+  document.getElementById('tab-practice').classList.toggle('active', tab==='practice');
+  document.getElementById('problems-panel').style.display = tab==='problems' ? 'block':'none';
+  const faqPanel=document.getElementById('faq-panel');
+  faqPanel.classList.toggle('active', tab==='faq');
+  const practicePanel=document.getElementById('practice-panel');
+  practicePanel.classList.toggle('active', tab==='practice');
+
+  // Set gen button color to topic color
+  const genBtn=document.getElementById('qp-gen-btn');
+  if(genBtn) genBtn.style.background=currentTopic.color;
+
+  // Set diff btn selected color
+  document.querySelectorAll('.qp-diff-btn.selected').forEach(b=>{
+    b.style.background=currentTopic.color;
+    b.style.borderColor=currentTopic.color;
+  });
+
+  if(tab==='faq'){
+    if(!faqData[currentTopic.id] && !skipLoad){
+      loadFAQ(currentTopic);
+    } else if(faqData[currentTopic.id]){
+      renderFAQ(currentTopic.id);
+    }
+  }
+}
+
+/* ═══ QUICK PRACTICE ═══ */
+let qpDifficulty='Easy';
+let qpCurrentStarter='';
+
+function selectQPDiff(diff, btn){
+  qpDifficulty=diff;
+  document.querySelectorAll('.qp-diff-btn').forEach(b=>{
+    b.classList.remove('selected');
+    b.style.background='';
+    b.style.borderColor='';
+    b.style.color='';
+  });
+  btn.classList.add('selected');
+  btn.style.background=currentTopic.color;
+  btn.style.borderColor=currentTopic.color;
+  btn.style.color='#000';
+}
+
+async function generateQPQuestion(){
+  const btn=document.getElementById('qp-gen-btn');
+  btn.disabled=true;
+  const area=document.getElementById('qp-question-area');
+  area.innerHTML=`<div class="qp-empty"><div class="inline-spinner"></div><div class="qp-empty-text" style="margin-top:8px">Generating a ${qpDifficulty==='Random'?'random':qpDifficulty.toLowerCase()} question on <strong style="color:var(--text)">${currentTopic.title}</strong>…</div></div>`;
+
+  const actualDiff = qpDifficulty==='Random'
+    ? ['Easy','Medium','Hard'][Math.floor(Math.random()*3)]
+    : qpDifficulty;
+
+  const prompt=`Generate a unique Python practice question about: ${currentTopic.faqContext}
+
+Difficulty: ${actualDiff}
+The question must be different from common textbook examples — make it practical and slightly creative.
+
+Return ONLY a JSON object (no markdown, no backticks):
+{
+  "title": "Short descriptive title",
+  "description": "Full problem statement with context, requirements, and 2 examples. Use actual newlines.",
+  "hint": "One helpful hint without giving away the solution",
+  "difficulty": "${actualDiff}",
+  "starter_code": "Python starter code with function signature and pass statements (8-15 lines)",
+  "tags": ["tag1","tag2","tag3"]
+}`;
+
+  try{
+    const raw=await callAI(prompt);
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const q=JSON.parse(clean);
+    qpCurrentStarter=q.starter_code||'# Write your solution here\n';
+    renderQPQuestion(q, actualDiff);
+  }catch(e){
+    area.innerHTML=`<div class="qp-empty"><div class="qp-empty-icon">⚠️</div><div class="qp-empty-text">Generation failed. Please try again.</div></div>`;
+  }
+  btn.disabled=false;
+}
+
+function renderQPQuestion(q, diff){
+  const color=currentTopic.color;
+  const diffClass='diff-'+diff.toLowerCase();
+  const area=document.getElementById('qp-question-area');
+  const tagsHtml=(q.tags||[]).map(t=>`<span class="prob-tag">${esc(t)}</span>`).join('');
+
+  area.innerHTML=`
+    <div class="qp-question-card">
+      <div class="qp-q-header">
+        <div class="qp-q-title">${esc(q.title)}</div>
+        <div class="qp-q-badges">
+          <span class="p-diff ${diffClass}">${esc(diff)}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 24px 0">${tagsHtml}</div>
+      <div class="qp-q-body">${esc(q.description)}</div>
+      <div class="qp-q-hint"><strong>💡 Hint:</strong> ${esc(q.hint)}</div>
+      <div class="qp-editor-wrap">
+        <div class="qp-editor-topbar">
+          <div class="qp-editor-dots">
+            <div class="qp-dot" style="background:#ff5f57"></div>
+            <div class="qp-dot" style="background:#febc2e"></div>
+            <div class="qp-dot" style="background:#28c840"></div>
+          </div>
+          <span style="font-size:10px;color:var(--muted)">solution.py</span>
+          <span style="font-size:10px;color:${color};letter-spacing:1px">Python 3</span>
+        </div>
+        <textarea class="qp-code-input" id="qp-code-input" placeholder="# Write your solution here&#10;# Tab for indentation">${esc(q.starter_code||'# Write your solution here\n')}</textarea>
+        <div class="qp-actions">
+          <button class="qp-submit-btn" id="qp-submit-btn" style="background:${color}" onclick="submitQPSolution('${esc(q.title)}','${esc(q.description.replace(/'/g,"\\'"))}')">
+            <svg width="9" height="11" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg>
+            Submit
+          </button>
+          <button class="qp-reset-btn" onclick="document.getElementById('qp-code-input').value=qpCurrentStarter">Reset</button>
+          <span class="qp-eval-msg" id="qp-eval-msg"></span>
+        </div>
+        <div id="qp-result-area"></div>
+      </div>
+    </div>`;
+
+  // Tab key for QP editor
+  document.getElementById('qp-code-input').addEventListener('keydown',e=>{
+    if(e.key==='Tab'){e.preventDefault();const el=e.target,s=el.selectionStart,end=el.selectionEnd;el.value=el.value.substring(0,s)+'    '+el.value.substring(end);el.selectionStart=el.selectionEnd=s+4;}
+  });
+}
+
+async function submitQPSolution(title, description){
+  const code=document.getElementById('qp-code-input').value.trim();
+  if(!code||code==='# Write your solution here') return;
+  const btn=document.getElementById('qp-submit-btn');
+  const msg=document.getElementById('qp-eval-msg');
+  btn.disabled=true; msg.textContent='Evaluating…';
+
+  const resultArea=document.getElementById('qp-result-area');
+  resultArea.innerHTML=`<div class="qp-result"><div style="display:flex;align-items:center;gap:10px"><div class="inline-spinner"></div><span style="font-size:12px;color:var(--muted)">AI reviewing your code…</span></div></div>`;
+
+  const prompt=`You are an expert Python code evaluator.
+Problem: ${title}
+Description: ${description}
+
+Student's code:
+\`\`\`python
+${code}
+\`\`\`
+
+Evaluate thoroughly. Return ONLY a JSON object (no markdown, no backticks):
+{
+  "correct": true or false,
+  "verdict": "One punchy sentence verdict",
+  "score": number 0-100,
+  "feedback": "2-3 sentences: what's right, what's wrong, what to improve.",
+  "time_complexity": "O(...)",
+  "space_complexity": "O(...)",
+  "correct_solution": "Full clean Python solution with inline comments (only if score < 80, else empty string)",
+  "improvements": ["tip 1","tip 2"]
+}`;
+
+  try{
+    const raw=await callAI(prompt);
+    const r=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderQPResult(r);
+  }catch(e){
+    resultArea.innerHTML=`<div class="qp-result"><span style="color:var(--hard);font-size:12px">Evaluation failed — try again.</span></div>`;
+  }
+  btn.disabled=false; msg.textContent='';
+}
+
+function renderQPResult(r){
+  const ok=r.correct||r.score>=70;
+  const sc=r.score>=70?'var(--easy)':r.score>=40?'var(--medium)':'var(--hard)';
+  const color=currentTopic.color;
+  const resultArea=document.getElementById('qp-result-area');
+  resultArea.innerHTML=`
+    <div class="qp-result">
+      <div class="qp-result-header">
+        <span style="font-size:22px">${ok?'✅':'❌'}</span>
+        <span class="qp-result-verdict" style="color:${ok?'var(--easy)':'var(--hard)'}">${esc(r.verdict)}</span>
+        <div class="qp-score-wrap">
+          <div class="qp-score-bar"><div class="qp-score-fill" id="qp-sbar" style="width:0%;background:${sc}"></div></div>
+          <span class="qp-score-num" style="color:${sc}">${r.score}/100</span>
+        </div>
+      </div>
+      ${r.time_complexity?`<div style="display:flex;gap:16px;margin-bottom:10px;font-size:11px"><span style="color:var(--muted)">Time: <b style="color:var(--c-basics)">${esc(r.time_complexity)}</b></span><span style="color:var(--muted)">Space: <b style="color:var(--c-algo)">${esc(r.space_complexity||'O(1)')}</b></span></div>`:''}
+      <div class="qp-feedback">${esc(r.feedback)}</div>
+      ${r.improvements&&r.improvements.length?`<div style="font-size:11px;color:var(--muted);margin-bottom:10px">💡 ${r.improvements.map(i=>esc(i)).join(' · ')}</div>`:''}
+      ${!ok&&r.correct_solution?`<div class="qp-solution"><div class="qp-solution-label">✦ Correct Solution</div><pre class="qp-solution-code">${esc(r.correct_solution)}</pre></div>`:''}
+      <button onclick="generateQPQuestion()" style="margin-top:14px;font-family:var(--mono);font-size:11px;padding:8px 18px;border-radius:8px;border:1px solid ${color};background:none;color:${color};cursor:pointer;">→ Try Another Question</button>
+    </div>`;
+  setTimeout(()=>{const el=document.getElementById('qp-sbar');if(el)el.style.width=r.score+'%';},100);
+}
+
+/* ═══ FAQ GENERATION ═══ */
+async function loadFAQ(topic){
+  document.getElementById('faq-grid').innerHTML=`<div class="faq-loading"><div class="inline-spinner"></div> Generating FAQ for ${topic.title}…</div>`;
+
+  const prompt=`You are an expert Python educator. Generate the 10 most frequently asked questions about: ${topic.faqContext}
+
+These should be the REAL most-asked questions from LeetCode discussions, Stack Overflow, coding interviews, university courses, and popular Python tutorials. Make them practical and conceptually illuminating.
+
+Return ONLY a JSON array (no markdown, no backticks). Each item:
+{
+  "question": "The exact commonly asked question",
+  "frequency": "Very High | High | Medium",
+  "difficulty": "Easy | Medium | Hard",
+  "answer": "A thorough, educational answer in 3-5 sentences. Be specific and practical.",
+  "code_example": "A short, focused Python code example illustrating the concept (10-15 lines max). Use \\n for newlines.",
+  "tip": "A key insight or common mistake to avoid"
+}`;
+
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const text=data.content.map(b=>b.text||'').join('');
+    const clean=text.replace(/```json|```/g,'').trim();
+    faqData[topic.id]=JSON.parse(clean);
+    document.getElementById('faq-count-badge').textContent=faqData[topic.id].length;
+    if(currentTopicTab==='faq') renderFAQ(topic.id);
+  } catch(e){
+    faqData[topic.id]=[{
+      question:'What are the most common Python interview questions on this topic?',
+      frequency:'Very High', difficulty:'Medium',
+      answer:'Please refresh and try again. FAQ generation encountered an error.',
+      code_example:'# Try again',
+      tip:'Make sure you have a stable connection.'
+    }];
+    if(currentTopicTab==='faq') renderFAQ(topic.id);
+  }
+}
+
+function renderFAQ(topicId){
+  const faqs=faqData[topicId];
+  const color=currentTopic.color;
+  const grid=document.getElementById('faq-grid');
+  grid.innerHTML='';
+
+  faqs.forEach((faq,i)=>{
+    const freqColor = faq.frequency==='Very High' ? '#ff5f6d' : faq.frequency==='High' ? '#ffd166' : '#00e5a0';
+    const diffClass = 'diff-'+(faq.difficulty||'medium').toLowerCase();
+    const card=document.createElement('div');
+    card.className='faq-card';
+    card.innerHTML=`
+      <div class="faq-q-row" onclick="toggleFAQ(${i})">
+        <div class="faq-q-num" style="color:${color};background:${color}18">${String(i+1).padStart(2,'0')}</div>
+        <div class="faq-q-content">
+          <div class="faq-q-text">${esc(faq.question)}</div>
+          <div class="faq-q-meta">
+            <span class="faq-freq" style="color:${freqColor};background:${freqColor}15;border:1px solid ${freqColor}30">🔥 ${esc(faq.frequency)}</span>
+            <span class="faq-diff-badge p-diff ${diffClass}">${esc(faq.difficulty)}</span>
+          </div>
+        </div>
+        <div class="faq-chevron">▼</div>
+      </div>
+      <div class="faq-answer" id="faq-ans-${i}">
+        ${esc(faq.answer)}
+        ${faq.code_example ? `<pre>${esc(faq.code_example.replace(/\\n/g,'\n'))}</pre>` : ''}
+        ${faq.tip ? `<div class="faq-tip"><strong>💡 Key Insight:</strong> ${esc(faq.tip)}</div>` : ''}
+        <button class="faq-try-btn" onclick="tryFAQInEditor(${i}, event)">→ Try in Editor</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function toggleFAQ(i){
+  const card=document.querySelectorAll('.faq-card')[i];
+  const ans=document.getElementById('faq-ans-'+i);
+  card.classList.toggle('open');
+  ans.style.display=card.classList.contains('open')?'block':'none';
+}
+
+function tryFAQInEditor(i, e){
+  e.stopPropagation();
+  const faq=faqData[currentTopic.id][i];
+  const code=`# FAQ: ${faq.question}\n# Study the example below, then modify or extend it\n\n${(faq.code_example||'# Write your code here').replace(/\\n/g,'\n')}`;
+  // Open first problem in solve view with this code pre-filled
+  currentProblemIdx=0;
+  currentProblem=currentTopic.problems[0];
+  document.documentElement.style.setProperty('--accent-color',currentTopic.color);
+  document.getElementById('solve-title').textContent=`Practice: ${faq.question.substring(0,60)}…`;
+  const diffEl=document.getElementById('solve-diff');
+  diffEl.textContent=faq.difficulty||'Medium';
+  diffEl.className='diff-pill diff-'+(faq.difficulty||'medium').toLowerCase();
+  document.querySelectorAll('.prob-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.getElementById('result-panel').classList.add('collapsed');
+  document.getElementById('code-input').value=code;
+  if(!problemData[currentProblem.id]) generateProblemData(currentProblem);
+  showView('v-solve');
+  renderProblemTab('desc');
+}
+
+/* ═══ PROBLEM OPEN ═══ */
+async function openProblem(idx){
+  currentProblemIdx=idx;
+  currentProblem=currentTopic.problems[idx];
+  document.documentElement.style.setProperty('--accent-color',currentTopic.color);
+  document.getElementById('solve-title').textContent=currentProblem.title;
+  const diffEl=document.getElementById('solve-diff');
+  diffEl.textContent=currentProblem.diff;
+  diffEl.className='diff-pill diff-'+currentProblem.diff.toLowerCase();
+  document.querySelectorAll('.prob-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.getElementById('result-panel').classList.add('collapsed');
+  document.getElementById('code-input').value=currentProblem.starter||'# Write your solution here\n';
+  showView('v-solve');
+  if(!problemData[currentProblem.id]){
+    showLoader('Generating problem details…');
+    await generateProblemData(currentProblem);
+    hideLoader();
+  }
+  renderProblemTab('desc');
+}
+
+function nextProblem(){
+  openProblem((currentProblemIdx+1)%currentTopic.problems.length);
+}
+
+/* ═══ AI HELPERS ═══ */
+async function callAI(prompt){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  });
+  const data=await res.json();
+  return data.content.map(b=>b.text||'').join('');
+}
+
+async function generateProblemData(p){
+  const prompt=`You are an expert Python educator creating a LeetCode-style problem.
+
+Problem: "${p.title}"
+Description: ${p.sub}
+Difficulty: ${p.diff}
+Type: ${p.type}
+Tags: ${p.tags.join(', ')}
+
+Return ONLY a JSON object (no markdown, no backticks):
+{
+  "full_description": "3-4 paragraph LeetCode-style description. Use \\n for newlines.",
+  "examples": [{"input":"...","output":"...","explanation":"..."},{"input":"...","output":"..."}],
+  "constraints": ["constraint 1","constraint 2","constraint 3"],
+  "hints": [
+    {"title":"Hint 1: Approach","body":"Think about..."},
+    {"title":"Hint 2: Data Structure","body":"Consider using..."},
+    {"title":"Hint 3: Optimization","body":"To optimize..."}
+  ],
+  "solution_explanation": "Optimal approach explanation",
+  "solution_code": "Complete working Python solution with comments"
+}`;
+  try{
+    const raw=await callAI(prompt);
+    const clean=raw.replace(/```json|```/g,'').trim();
+    problemData[p.id]=JSON.parse(clean);
+  }catch(e){
+    problemData[p.id]={full_description:p.sub,examples:[{input:'See starter code',output:'Expected output'}],constraints:['Read carefully','Handle edge cases'],hints:[{title:'Hint 1',body:'Think about the approach'},{title:'Hint 2',body:'Consider the data structure'}],solution_explanation:'Implement step by step',solution_code:'# See hints'};
+  }
+}
+
+/* ═══ TABS ═══ */
+function switchTab(tab,el){
+  currentTab=tab;
+  document.querySelectorAll('.prob-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderProblemTab(tab);
+}
+
+function renderProblemTab(tab){
+  const p=currentProblem, d=problemData[p.id];
+  const content=document.getElementById('prob-content');
+  if(tab==='desc'){
+    if(!d){content.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)"><div class="ld-spinner" style="margin:0 auto 12px"></div>Loading…</div>';return;}
+    const exHtml=(d.examples||[]).map(ex=>`<div class="example-box"><strong>Input:</strong> ${esc(ex.input)}<br><strong>Output:</strong> ${esc(ex.output)}${ex.explanation?`<br><strong>Explanation:</strong> ${esc(ex.explanation)}`:''}</div>`).join('');
+    content.innerHTML=`
+      <div class="prob-title">${esc(p.title)}</div>
+      <div class="prob-meta">
+        <span class="p-diff diff-${p.diff.toLowerCase()}">${p.diff}</span>
+        ${p.tags.map(t=>`<span class="prob-tag">${t}</span>`).join('')}
+      </div>
+      <div class="prob-desc">${esc(d.full_description).replace(/\\n/g,'<br>')}
+        <h4>Examples</h4>${exHtml}
+        <div class="constraints-box"><h4>Constraints</h4><ul>${(d.constraints||[]).map(c=>`<li>${esc(c)}</li>`).join('')}</ul></div>
+      </div>`;
+  } else if(tab==='hints'){
+    if(!d){content.innerHTML='<div style="color:var(--muted);padding:20px;font-size:12px">Loading…</div>';return;}
+    content.innerHTML=`<div style="margin-bottom:16px;font-size:12px;color:var(--muted)">Reveal hints one at a time.</div>
+      <div class="hint-list">${(d.hints||[]).map((h,i)=>`
+        <div class="hint-item">
+          <button class="hint-toggle" onclick="toggleHint(${i})">${esc(h.title)} <span id="ha-${i}">▼</span></button>
+          <div class="hint-body" id="hb-${i}">${esc(h.body)}</div>
+        </div>`).join('')}</div>`;
+  } else if(tab==='solution'){
+    if(!d){content.innerHTML='<div style="color:var(--muted);padding:20px;font-size:12px">Loading…</div>';return;}
+    content.innerHTML=`<div style="margin-bottom:16px;font-size:12px;color:var(--muted)">Study the approach first.</div>
+      <div class="solution-reveal"><div class="solution-reveal-header" style="color:var(--c-basics)">Approach</div><div class="solution-code-block">${esc(d.solution_explanation)}</div></div>
+      <div class="solution-reveal"><div class="solution-reveal-header" style="color:var(--c-project)">✦ Complete Solution</div><pre class="solution-code-block">${esc(d.solution_code)}</pre></div>`;
+  }
+}
+
+function toggleHint(i){
+  const b=document.getElementById('hb-'+i), a=document.getElementById('ha-'+i);
+  b.classList.toggle('show');
+  a.textContent=b.classList.contains('show')?'▲':'▼';
+}
+
+/* ═══ SUBMIT ═══ */
+async function submitSolution(){
+  const code=document.getElementById('code-input').value.trim();
+  if(!code||code.startsWith('# Start coding')||code==='# Write your solution here') return;
+  const btn=document.getElementById('run-btn'), msg=document.getElementById('eval-msg');
+  btn.disabled=true; msg.textContent='Evaluating…';
+  const panel=document.getElementById('result-panel');
+  panel.classList.remove('collapsed');
+  document.getElementById('result-topbar').innerHTML='<div style="display:flex;align-items:center;gap:10px"><div class="inline-spinner"></div><span style="font-size:12px;color:var(--muted)">AI reviewing your code…</span></div>';
+  document.getElementById('result-body').innerHTML='';
+
+  const d=problemData[currentProblem.id];
+  const prompt=`You are an expert Python code evaluator.
+Problem: ${currentProblem.title}
+Description: ${currentProblem.sub}
+${d?'Full context: '+d.full_description:''}
+
+Student's code:
+\`\`\`python
+${code}
+\`\`\`
+
+Evaluate thoroughly. Return ONLY a JSON object (no markdown, no backticks):
+{
+  "correct": true or false,
+  "verdict": "One punchy sentence verdict",
+  "score": number 0-100,
+  "feedback": "3-4 sentences: what's right, what's wrong, what to improve.",
+  "time_complexity": "O(...)",
+  "space_complexity": "O(...)",
+  "correct_solution": "Full clean solution with comments (only if score < 80, else empty string)",
+  "improvements": ["tip 1","tip 2"]
+}`;
+  try{
+    const raw=await callAI(prompt);
+    const r=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderResult(r);
+    if(r.score>=70){ solved.add(currentProblem.id); localStorage.setItem('pyforge_solved',JSON.stringify([...solved])); }
+  }catch(e){
+    renderResult({correct:false,verdict:'Evaluation error — try again.',score:0,feedback:'There was an issue. Your code may be correct — try submitting again.',correct_solution:'',improvements:[]});
+  }
+  btn.disabled=false; msg.textContent='';
+}
+
+function renderResult(r){
+  const ok=r.correct||r.score>=70;
+  const sc=r.score>=70?'var(--easy)':r.score>=40?'var(--medium)':'var(--hard)';
+  document.getElementById('result-topbar').innerHTML=`
+    <span style="font-size:20px">${ok?'✅':'❌'}</span>
+    <span class="result-verdict-label" style="color:${ok?'var(--easy)':'var(--hard)'}">${esc(r.verdict)}</span>
+    <div class="score-bar-outer"><div class="score-bar-inner" id="sbi" style="width:0%;background:${sc}"></div></div>
+    <span class="result-score" style="color:${sc}">${r.score}/100</span>`;
+  setTimeout(()=>{const el=document.getElementById('sbi');if(el)el.style.width=r.score+'%';},100);
+  document.getElementById('result-body').innerHTML=`
+    ${r.time_complexity?`<div style="display:flex;gap:16px;margin-bottom:12px;font-size:11px"><span style="color:var(--muted)">Time: <b style="color:var(--c-basics)">${esc(r.time_complexity)}</b></span><span style="color:var(--muted)">Space: <b style="color:var(--c-algo)">${esc(r.space_complexity||'O(1)')}</b></span></div>`:''}
+    <div class="result-feedback">${esc(r.feedback)}</div>
+    ${r.improvements&&r.improvements.length?`<div style="margin-top:8px;font-size:11px;color:var(--muted)">💡 ${r.improvements.map(i=>esc(i)).join(' · ')}</div>`:''}
+    ${!ok&&r.correct_solution?`<div class="ai-solution-box"><div class="ai-sol-header">✦ Correct Solution</div><pre class="ai-sol-code">${esc(r.correct_solution)}</pre></div>`:''}`;
+}
+
+function resetCode(){
+  document.getElementById('code-input').value=currentProblem.starter||'# Write your solution here\n';
+  document.getElementById('result-panel').classList.add('collapsed');
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showLoader(t){document.getElementById('loader-text').textContent=t||'Loading…';document.getElementById('loader').classList.add('show');}
+function hideLoader(){document.getElementById('loader').classList.remove('show');}
+
+document.getElementById('code-input').addEventListener('keydown',e=>{
+  if(e.key==='Tab'){e.preventDefault();const el=e.target,s=el.selectionStart,end=el.selectionEnd;el.value=el.value.substring(0,s)+'    '+el.value.substring(end);el.selectionStart=el.selectionEnd=s+4;}
+});
+
+init();
+</script>
+</body>
+</html>
